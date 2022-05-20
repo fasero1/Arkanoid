@@ -9,6 +9,17 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./libs/AssetsPreloader.js":
+/*!*********************************!*\
+  !*** ./libs/AssetsPreloader.js ***!
+  \*********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ AssetsPreloader)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n\r\n\r\nclass AssetsPreloader {\r\n  constructor(assets) {\r\n    this.loader = pixi_js__WEBPACK_IMPORTED_MODULE_0__.Loader.shared\r\n\r\n    this.assets = assets\r\n\r\n    this.totalItems = 0\r\n    console.log(Object.values(this.assets))\r\n\r\n    this.images = []\r\n\r\n    this.onComplete = null\r\n  }\r\n\r\n  preload() {\r\n    if (this.assets.images) this.loadImages()\r\n\r\n    this.loader.load(() => this.onCompletePreload())\r\n  }\r\n\r\n  loadImages() {\r\n    console.log('load')\r\n    this.assets.images.forEach((url) => {\r\n      const name = url.split('/').at(-1).split('.')[0]\r\n\r\n      this.loader.add(name, url, (res) => {\r\n        this.images.push(res.texture)\r\n      })\r\n    })\r\n  }\r\n\r\n  onCompletePreload() {\r\n    this.onComplete()\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./libs/AssetsPreloader.js?");
+
+/***/ }),
+
 /***/ "./libs/GameWindow.js":
 /*!****************************!*\
   !*** ./libs/GameWindow.js ***!
@@ -27,7 +38,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ MySprite)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n\r\n\r\nclass MySprite extends pixi_js__WEBPACK_IMPORTED_MODULE_0__.Sprite {\r\n  constructor(url) {\r\n    super(pixi_js__WEBPACK_IMPORTED_MODULE_0__.Texture.from(url))\r\n\r\n    this.anchor.set(0.5)\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./libs/MySprite.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ MySprite)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n\r\n\r\nclass MySprite extends pixi_js__WEBPACK_IMPORTED_MODULE_0__.Container {\r\n  constructor(url) {\r\n    super()\r\n\r\n    console.log(pixi_js__WEBPACK_IMPORTED_MODULE_0__.utils.BaseTextureCache)\r\n    this.sprite = this.addChild(new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Sprite(pixi_js__WEBPACK_IMPORTED_MODULE_0__.Texture.from(url)))\r\n\r\n    this.sprite.anchor.set(0.5)\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./libs/MySprite.js?");
 
 /***/ }),
 
@@ -697,7 +708,7 @@ eval("\n\nmodule.exports = {\n  isString: function(arg) {\n    return typeof(arg
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ Game)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./main.css */ \"./src/main.css\");\n/* harmony import */ var _view_MainWindow__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./view/MainWindow */ \"./src/view/MainWindow.js\");\n\r\n\r\n\r\n\r\n\r\nclass Game {\r\n  static init() {\r\n    const pixiConfig = {\r\n      width: window.innerWidth,\r\n      height: window.innerHeight,\r\n      antialias: true,\r\n      resizeTo: window\r\n    }\r\n\r\n    Game.app = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Application(pixiConfig)\r\n    document.body.appendChild(Game.app.view)\r\n\r\n    Game.observer = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.utils.EventEmitter()\r\n\r\n    Game.currentWindow = Game.app.stage.addChild(new _view_MainWindow__WEBPACK_IMPORTED_MODULE_2__[\"default\"]())\r\n\r\n    Game.subscribe()\r\n    Game.onResize()\r\n  }\r\n\r\n  static subscribe() {\r\n    window.addEventListener('resize', Game.onResize)\r\n\r\n    Game.app.ticker.add(Game.onTick)\r\n  }\r\n\r\n  static emit(event, a1, a2, a3, a4) {\r\n    Game.observer.emit(event, a1, a2, a3, a4)\r\n    // Game.observer.emit('gameEvent', { type: event, data: a1 })\r\n  }\r\n\r\n  static on(event, func, context) {\r\n    Game.observer.on(event, func, context)\r\n  }\r\n\r\n  static once(event, func, context) {\r\n    Game.observer.once(event, func, context)\r\n  }\r\n\r\n  static off(event, func, context) {\r\n    Game.observer.off(event, func, context)\r\n  }\r\n\r\n  static onResize() {\r\n    Game.app.stage.pivot.set(-window.innerWidth / 2, -window.innerHeight / 2)\r\n\r\n    Game.currentWindow.onResize()\r\n\r\n    Game.emit('resize')\r\n  }\r\n\r\n  static onTick(delta) {\r\n    Game.currentWindow.onTick(delta)\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./src/Game.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ Game)\n/* harmony export */ });\n/* harmony import */ var pixi_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! pixi.js */ \"./node_modules/pixi.js/dist/esm/pixi.js\");\n/* harmony import */ var _main_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./main.css */ \"./src/main.css\");\n/* harmony import */ var _view_MainWindow__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./view/MainWindow */ \"./src/view/MainWindow.js\");\n/* harmony import */ var _libs_AssetsPreloader__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../libs/AssetsPreloader */ \"./libs/AssetsPreloader.js\");\n/* harmony import */ var _assets_json__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./assets.json */ \"./src/assets.json\");\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\nclass Game {\r\n  static app = null\r\n  static currentWindow = null\r\n  static loader = null\r\n  static observer = null\r\n  static width = window.innerWidth\r\n  static height = window.innerHeight\r\n\r\n  static init() {\r\n    const pixiConfig = {\r\n      width: window.innerWidth,\r\n      height: window.innerHeight,\r\n      antialias: true\r\n      // resizeTo: window\r\n    }\r\n\r\n    Game.app = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.Application(pixiConfig)\r\n    document.body.appendChild(Game.app.view)\r\n\r\n    Game.observer = new pixi_js__WEBPACK_IMPORTED_MODULE_0__.utils.EventEmitter()\r\n\r\n    Game.loader = new _libs_AssetsPreloader__WEBPACK_IMPORTED_MODULE_3__[\"default\"](_assets_json__WEBPACK_IMPORTED_MODULE_4__)\r\n    Game.loader.onComplete = Game.createMainWindow\r\n    Game.loader.preload()\r\n  }\r\n\r\n  static createMainWindow() {\r\n    Game.currentWindow = Game.app.stage.addChild(new _view_MainWindow__WEBPACK_IMPORTED_MODULE_2__[\"default\"]())\r\n\r\n    Game.subscribe()\r\n    Game.onResize()\r\n  }\r\n\r\n  static subscribe() {\r\n    window.onresize = Game.onResize\r\n\r\n    Game.app.ticker.add(Game.onTick)\r\n  }\r\n\r\n  static emit(event, a1, a2, a3, a4) {\r\n    Game.observer.emit(event, a1, a2, a3, a4)\r\n    // Game.observer.emit('gameEvent', { type: event, data: a1 })\r\n  }\r\n\r\n  static on(event, func, context) {\r\n    Game.observer.on(event, func, context)\r\n  }\r\n\r\n  static once(event, func, context) {\r\n    Game.observer.once(event, func, context)\r\n  }\r\n\r\n  static off(event, func, context) {\r\n    Game.observer.off(event, func, context)\r\n  }\r\n\r\n  static onResize() {\r\n    Game.app.stage.pivot.set(-window.innerWidth / 2, -window.innerHeight / 2)\r\n    Game.width = window.innerWidth\r\n    Game.height = window.innerHeight\r\n    Game.app.renderer.resize(Game.width, Game.height)\r\n\r\n    Game.currentWindow.onResize()\r\n\r\n    Game.emit('resize')\r\n  }\r\n\r\n  static onTick(delta) {\r\n    Game.currentWindow.onTick(delta)\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./src/Game.js?");
 
 /***/ }),
 
@@ -708,7 +719,7 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpac
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Game */ \"./src/Game.js\");\n\r\n\r\nconst runGame = () => {\r\n  window.removeEventListener('load', runGame)\r\n\r\n  _Game__WEBPACK_IMPORTED_MODULE_0__[\"default\"].init()\r\n\r\n  // window.Game = Game\r\n}\r\n\r\nwindow.addEventListener('load', runGame)\r\n\n\n//# sourceURL=webpack://match/./src/index.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Game */ \"./src/Game.js\");\n\r\n\r\nwindow.onload = _Game__WEBPACK_IMPORTED_MODULE_0__[\"default\"].init\r\n\n\n//# sourceURL=webpack://match/./src/index.js?");
 
 /***/ }),
 
@@ -719,18 +730,18 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony import */ var _Gam
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ MainWindow)\n/* harmony export */ });\n/* harmony import */ var _libs_GameWindow__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../libs/GameWindow */ \"./libs/GameWindow.js\");\n/* harmony import */ var _libs_MySprite__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/MySprite */ \"./libs/MySprite.js\");\n/* harmony import */ var _assets_images_red_png__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../assets/images/red.png */ \"./src/assets/images/red.png\");\n\r\n\r\n\r\n\r\n\r\nclass MainWindow extends _libs_GameWindow__WEBPACK_IMPORTED_MODULE_0__[\"default\"] {\r\n  constructor() {\r\n    super()\r\n\r\n    const square = this.addChild(new _libs_MySprite__WEBPACK_IMPORTED_MODULE_1__[\"default\"](_assets_images_red_png__WEBPACK_IMPORTED_MODULE_2__))\r\n  }\r\n}\r\n\n\n//# sourceURL=webpack://match/./src/view/MainWindow.js?");
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (/* binding */ MainWindow)\n/* harmony export */ });\n/* harmony import */ var _Game__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Game */ \"./src/Game.js\");\n/* harmony import */ var _libs_GameWindow__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../libs/GameWindow */ \"./libs/GameWindow.js\");\n/* harmony import */ var _libs_MySprite__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../libs/MySprite */ \"./libs/MySprite.js\");\n\r\n\r\n\r\n\r\nclass MainWindow extends _libs_GameWindow__WEBPACK_IMPORTED_MODULE_1__[\"default\"] {\r\n  constructor() {\r\n    super()\r\n\r\n    this.background = null\r\n\r\n    this.fieldModel = null\r\n    this.fieldView = null\r\n\r\n    this.createChildren()\r\n  }\r\n\r\n  createChildren() {\r\n    this.background = this.addChild(new _libs_MySprite__WEBPACK_IMPORTED_MODULE_2__[\"default\"]('assets/images/background.png'))\r\n  }\r\n\r\n  onResize() {}\r\n}\r\n\n\n//# sourceURL=webpack://match/./src/view/MainWindow.js?");
 
 /***/ }),
 
-/***/ "./src/assets/images/red.png":
-/*!***********************************!*\
-  !*** ./src/assets/images/red.png ***!
-  \***********************************/
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+/***/ "./src/assets.json":
+/*!*************************!*\
+  !*** ./src/assets.json ***!
+  \*************************/
+/***/ ((module) => {
 
 "use strict";
-eval("module.exports = __webpack_require__.p + \"b10acbfeb26cf70b2f84.png\";\n\n//# sourceURL=webpack://match/./src/assets/images/red.png?");
+eval("module.exports = JSON.parse('{\"images\":[\"assets/images/background.png\",\"assets/images/red.png\",\"assets/images/green.png\",\"assets/images/blue.png\",\"assets/images/purple.png\",\"assets/images/yellow.png\",\"assets/images/1564904825_1.jpg\"]}');\n\n//# sourceURL=webpack://match/./src/assets.json?");
 
 /***/ })
 
@@ -823,26 +834,6 @@ eval("module.exports = __webpack_require__.p + \"b10acbfeb26cf70b2f84.png\";\n\n
 /******/ 			if (!module.children) module.children = [];
 /******/ 			return module;
 /******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/publicPath */
-/******/ 	(() => {
-/******/ 		var scriptUrl;
-/******/ 		if (__webpack_require__.g.importScripts) scriptUrl = __webpack_require__.g.location + "";
-/******/ 		var document = __webpack_require__.g.document;
-/******/ 		if (!scriptUrl && document) {
-/******/ 			if (document.currentScript)
-/******/ 				scriptUrl = document.currentScript.src
-/******/ 			if (!scriptUrl) {
-/******/ 				var scripts = document.getElementsByTagName("script");
-/******/ 				if(scripts.length) scriptUrl = scripts[scripts.length - 1].src
-/******/ 			}
-/******/ 		}
-/******/ 		// When supporting browsers where an automatic publicPath is not supported you must specify an output.publicPath manually via configuration
-/******/ 		// or pass an empty string ("") and set the __webpack_public_path__ variable from your code to use your own logic.
-/******/ 		if (!scriptUrl) throw new Error("Automatic publicPath is not supported in this browser");
-/******/ 		scriptUrl = scriptUrl.replace(/#.*$/, "").replace(/\?.*$/, "").replace(/\/[^\/]+$/, "/");
-/******/ 		__webpack_require__.p = scriptUrl;
 /******/ 	})();
 /******/ 	
 /************************************************************************/

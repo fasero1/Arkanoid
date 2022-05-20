@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/Sprutik/match#readme",
   "devDependencies": {
+    "assets-webpack-plugin": "^7.1.1",
+    "copy-webpack-plugin": "^10.2.4",
     "css-loader": "^6.7.0",
     "eslint": "^8.10.0",
     "html-webpack-plugin": "^5.5.0",

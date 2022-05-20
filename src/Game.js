@@ -2,14 +2,24 @@ import { Application, utils } from 'pixi.js'
 import './main.css'
 
 import MainWindow from './view/MainWindow'
+import AssetsPreloader from '../libs/AssetsPreloader'
+
+import assetsData from './assets.json'
 
 export default class Game {
+  static app = null
+  static currentWindow = null
+  static loader = null
+  static observer = null
+  static width = window.innerWidth
+  static height = window.innerHeight
+
   static init() {
     const pixiConfig = {
       width: window.innerWidth,
       height: window.innerHeight,
-      antialias: true,
-      resizeTo: window
+      antialias: true
+      // resizeTo: window
     }
 
     Game.app = new Application(pixiConfig)
@@ -17,6 +27,12 @@ export default class Game {
 
     Game.observer = new utils.EventEmitter()
 
+    Game.loader = new AssetsPreloader(assetsData)
+    Game.loader.onComplete = Game.createMainWindow
+    Game.loader.preload()
+  }
+
+  static createMainWindow() {
     Game.currentWindow = Game.app.stage.addChild(new MainWindow())
 
     Game.subscribe()
@@ -24,7 +40,7 @@ export default class Game {
   }
 
   static subscribe() {
-    window.addEventListener('resize', Game.onResize)
+    window.onresize = Game.onResize
 
     Game.app.ticker.add(Game.onTick)
   }
@@ -48,6 +64,9 @@ export default class Game {
 
   static onResize() {
     Game.app.stage.pivot.set(-window.innerWidth / 2, -window.innerHeight / 2)
+    Game.width = window.innerWidth
+    Game.height = window.innerHeight
+    Game.app.renderer.resize(Game.width, Game.height)
 
     Game.currentWindow.onResize()
 
