@@ -20,13 +20,9 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       },
       {
-        test: /\.(png|jpg|gif)$/i,
+        test: /\.(png|jpg|gif||ttf|m4a)$/i,
         use: ['url-loader']
       }
-      // {
-      //   test: /\.json$/,
-      //   use: []
-      // }
     ]
   },
 
@@ -43,40 +39,6 @@ module.exports = {
       title: 'match',
       template: path.resolve(__dirname, 'src/template.html'),
       filename: 'index.html'
-    }),
-
-    new AssetsPlugin({
-      filename: 'assets.json',
-      manifestFirst: true,
-      prettyPrint: true,
-      path: path.join(__dirname, 'src'),
-      removeFullPathAutoPrefix: true,
-      // includeAllFileTypes: false,
-      // fileTypes: ['png', 'jpg', 'm4a'],
-      includeFilesWithoutChunk: true,
-      processOutput: assetOutput
-    }),
-
-    new CopyPlugin({
-      patterns: [{ from: 'src/assets', to: './assets' }]
     })
   ]
-}
-
-function assetOutput(manifest) {
-  const obj = manifest['']
-  const allFilesArray = []
-  const assets = { images: [], sounds: [] }
-
-  for (const i in obj) {
-    Array.isArray(obj[i]) ? allFilesArray.push(...obj[i]) : allFilesArray.push(obj[i])
-  }
-
-  allFilesArray.forEach((file) => {
-    const type = file.split('.').at(-1)
-    if (type === 'png' || type === 'jpg' || type === 'svg') assets.images.push(file)
-    if (type === 'm4a') assets.sounds.push(file)
-  })
-
-  return JSON.stringify(assets)
 }

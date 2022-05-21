@@ -1,16 +1,15 @@
 import { Application, utils } from 'pixi.js'
 import './main.css'
 
-import MainWindow from './view/MainWindow'
 import AssetsPreloader from '../libs/AssetsPreloader'
 
-import assetsData from './assets.json'
+import MainWindow from './view/MainWindow'
 
 export default class Game {
   static app = null
   static currentWindow = null
-  static loader = null
   static observer = null
+  // static assets = null
   static width = window.innerWidth
   static height = window.innerHeight
 
@@ -27,10 +26,40 @@ export default class Game {
 
     Game.observer = new utils.EventEmitter()
 
-    Game.loader = new AssetsPreloader(assetsData)
+    Game.loader = new AssetsPreloader(Game.getAssets())
     Game.loader.onComplete = Game.createMainWindow
     Game.loader.preload()
   }
+
+  static getAssets() {
+    const assets = { images: [], fonts: [], sounds: [] }
+    const res = require.context('./assets/', true, /^\.\/.*$/)
+
+    res.keys().forEach((key) => {
+      const path = key.split('/')
+      path.shift()
+
+      if (path[0] in assets) {
+        const folder = path.shift()
+        const id = path.join('/').split('.').shift()
+
+        const obj = {
+          id: id,
+          src: res(key).default
+        }
+
+        assets[folder].push(obj)
+      }
+    })
+
+    return assets
+  }
+
+  // static createTextures() {
+  //   Game.assets.images.forEach((obj) => {
+  //     const qwe = Texture.fromLoader(obj.src, obj.id)
+  //   })
+  // }
 
   static createMainWindow() {
     Game.currentWindow = Game.app.stage.addChild(new MainWindow())

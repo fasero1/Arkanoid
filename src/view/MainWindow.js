@@ -16,6 +16,7 @@ export default class MainWindow extends GameWindow {
 
   createChildren() {
     this.background = this.addChild(new MySprite('background'))
+    console.log(this.background.width)
   }
 
   onResize() {}

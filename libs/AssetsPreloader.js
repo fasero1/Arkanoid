@@ -21,11 +21,8 @@ export default class AssetsPreloader {
   }
 
   loadImages() {
-    console.log('load')
-    this.assets.images.forEach((url) => {
-      const name = url.split('/').at(-1).split('.')[0]
-
-      this.loader.add(name, url, (res) => {
+    this.assets.images.forEach((obj) => {
+      this.loader.add(obj.id, obj.src, (res) => {
         this.images.push(res.texture)
         this.loadedItems++
       })
