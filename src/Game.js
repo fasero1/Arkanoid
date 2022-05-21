@@ -2,23 +2,17 @@ import { Application, utils } from 'pixi.js'
 import './main.css'
 
 import AssetsPreloader from '../libs/AssetsPreloader'
-
+import LayoutHelper from '../libs/LayoutHelper'
 import MainWindow from './view/MainWindow'
 
 export default class Game {
   static app = null
   static currentWindow = null
   static observer = null
-  // static assets = null
-  static width = window.innerWidth
-  static height = window.innerHeight
 
   static init() {
     const pixiConfig = {
-      width: window.innerWidth,
-      height: window.innerHeight,
       antialias: true
-      // resizeTo: window
     }
 
     Game.app = new Application(pixiConfig)
@@ -55,12 +49,6 @@ export default class Game {
     return assets
   }
 
-  // static createTextures() {
-  //   Game.assets.images.forEach((obj) => {
-  //     const qwe = Texture.fromLoader(obj.src, obj.id)
-  //   })
-  // }
-
   static createMainWindow() {
     Game.currentWindow = Game.app.stage.addChild(new MainWindow())
 
@@ -92,10 +80,11 @@ export default class Game {
   }
 
   static onResize() {
-    Game.app.stage.pivot.set(-window.innerWidth / 2, -window.innerHeight / 2)
-    Game.width = window.innerWidth
-    Game.height = window.innerHeight
-    Game.app.renderer.resize(Game.width, Game.height)
+    LayoutHelper.onResize()
+
+    Game.app.stage.pivot.set(-LayoutHelper.gameWidth / 2, -LayoutHelper.gameHeight / 2)
+
+    Game.app.renderer.resize(LayoutHelper.gameWidth, LayoutHelper.gameHeight)
 
     Game.currentWindow.onResize()
 

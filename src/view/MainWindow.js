@@ -1,6 +1,7 @@
 import Game from '../Game'
 import GameWindow from '../../libs/GameWindow'
 import MySprite from '../../libs/MySprite'
+import LayoutHelper from '../../libs/LayoutHelper'
 
 export default class MainWindow extends GameWindow {
   constructor() {
@@ -16,8 +17,17 @@ export default class MainWindow extends GameWindow {
 
   createChildren() {
     this.background = this.addChild(new MySprite('background'))
-    console.log(this.background.width)
   }
 
-  onResize() {}
+  onResize() {
+    const { gameWidth, gameHeight, isLandscape } = LayoutHelper
+
+    if (isLandscape) {
+      this.background.width = gameWidth
+      this.background.scale.y = this.background.scale.x
+    } else {
+      this.background.height = gameHeight
+      this.background.scale.x = this.background.scale.y
+    }
+  }
 }
