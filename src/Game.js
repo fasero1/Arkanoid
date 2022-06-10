@@ -21,7 +21,7 @@ export default class Game {
       width: Game.size.w,
       height: Game.size.h,
       antialias: true, // default: false
-      transparent: false, // default: false
+      // transparent: false, // default: false
       resolution: 1, // default: 1
       backgroundColor: 0x2c3e50
     }
@@ -95,19 +95,17 @@ export default class Game {
   }
 
   static onResize() {
-    LayoutHelper.onResize()
+    LayoutHelper.onResize(Game.size)
 
-    document.body.style.width = w + 'px'
-    document.body.style.height = h + 'px'
+    const { width, height, gameWidth, gameHeight } = LayoutHelper
 
-    Game.app.renderer.resize(LayoutHelper.gameWidth, LayoutHelper.gameHeight)
-    // Game.app.stage.position.set(LayoutHelper.gameWidth/2,LayoutHelper.height/2)
+    document.body.style.width = width + 'px'
+    document.body.style.height = height + 'px'
 
-    // let ratio = Math.max(LayoutHelper.gameWidth / Game.size.w, LayoutHelper.gameHeight / Game.size.h)
+    Game.app.renderer.resize(gameWidth, gameHeight)
+    Game.app.view.style.width = width + 'px'
+    Game.app.view.style.height = height + 'px'
 
-    // Game.currentWindow.position.set(LayoutHelper.gameWidth / 2, LayoutHelper.gameHeight / 2)
-    // Game.currentWindow.scale.set(ratio)
-    // Game.currentWindow.scale.set(ratio)
     Game.currentWindow.position.set(Game.app.renderer.width / 2, Game.app.renderer.height / 2)
     Game.currentWindow.onResize()
 
