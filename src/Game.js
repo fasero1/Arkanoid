@@ -6,6 +6,7 @@ import './main.css'
 import AssetsPreloader from '../libs/AssetsPreloader'
 import LayoutHelper from '../libs/LayoutHelper'
 import MainWindow from './view/MainWindow'
+import Particles from '../libs/Particles'
 
 export default class Game {
   static app = null
@@ -13,6 +14,7 @@ export default class Game {
   static observer = null
   static container = document.body
   static size = { w: 960, h: 960 }
+  static liveTime = 0
 
   static init() {
     Game.container = document.body
@@ -112,10 +114,15 @@ export default class Game {
     Game.emit('resize')
   }
 
-  static onTick(delta) {
+  static onTick() {
     const lastTime = Game.app.ticker.lastTime
 
+    let delta = Game.app.ticker.elapsedMS
+
+    Game.liveTime += delta
+
     TWEEN.update(lastTime)
+    Particles.update(delta)
 
     Game.currentWindow.onTick(delta)
   }

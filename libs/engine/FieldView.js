@@ -11,9 +11,7 @@ export default class FieldView extends Container {
     this.model = new FieldModel(matrix)
 
     this.plateSize = props?.size || 100
-
-    this.startCordX = -((this.plateSize * this.model.width) / 2 - this.plateSize / 2)
-    this.startCordY = -((this.plateSize * this.model.height) / 2 - this.plateSize / 2)
+    this.typesNumber = props?.typesNumber || 6
 
     this.bordersContainer = null
     this.tokensContainer = null
@@ -37,17 +35,19 @@ export default class FieldView extends Container {
     const matrix = this.model.matrix
 
     this.bordersContainer = this.addChild(new Container())
+    this.bordersContainer.position.set((-this.plateSize * matrix.length) / 2 + this.plateSize / 2)
 
     for (let row = 0; row < matrix.length; row++) {
       for (let col = 0; col < matrix[row].length; col++) {
         let texture = 'borders/plate-1'
         if ((row % 2 && col % 2 === 0) || (row % 2 === 0 && col % 2)) texture = 'borders/plate-2'
+        if (matrix[row][col] === -1) continue
 
         const plate = this.bordersContainer.addChild(new Sprite(texture))
 
         plate.width = plate.height = 100
 
-        plate.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
+        plate.position.set(col * this.plateSize, row * this.plateSize)
 
         const borders = this.bordersCheck(row, col)
         this.drawBorders(borders, row, col)
@@ -59,7 +59,7 @@ export default class FieldView extends Container {
     for (const side in borders) {
       if (borders[side]) {
         const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
-        sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
+        sprite.position.set(col * this.plateSize, row * this.plateSize)
 
         const correction = this.plateSize / 2 + sprite.height / 2
 
@@ -78,15 +78,16 @@ export default class FieldView extends Container {
     const matrix = this.model.matrix
 
     this.tokensContainer = this.addChild(new Container())
+    this.tokensContainer.position.set((-this.plateSize * matrix.length) / 2 + this.plateSize / 2)
 
     for (let row = 0; row < matrix.length; row++) {
       for (let col = 0; col < matrix[row].length; col++) {
+        if (matrix[row][col] === -1) continue
+
         const token = this.tokensContainer.addChild(new TokenView(matrix[row][col]))
+        token.position.set(col * this.plateSize, row * this.plateSize)
+
         this.model.pushToken(row, col, token)
-
-        token.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
-
-        this.tokens.push(token)
       }
     }
   }
@@ -124,21 +125,78 @@ export default class FieldView extends Container {
     }
 
     if (this.selectedTokens.length === 2) {
-      this.onSwap()
+      this.makeSwap()
     }
   }
 
-  onSwap() {
+  makeSwap() {
     this.selectedTokens.forEach((token) => token.onUnselect())
 
-    this.model.swapTokens(this.selectedTokens)
+    if (this.model.swapTokens(this.selectedTokens)) {
+      this.update()
+    }
 
     this.selectedTokens = []
   }
 
-  update() {
-    this.model.matrixCheck()
+  destroyToken(token) {
+    token.toDestroy = true
+    token.onDestroy()
 
-    // console.log(this.model.matrix)
+    this.model.destroyToken(token.row, token.col)
+
+    if (token.relatedMatches.length > 1) {
+      // logic for bouns tokens
+    }
+  }
+
+  spawnNewTokens() {
+    const emptyPos = this.model.getEmptyPositions()
+
+    for (let i = emptyPos.length - 1; i >= 0; i--) {
+      const { row, col } = emptyPos[i]
+      const type = Math.floor(Math.random() * (this.typesNumber + 1 - 1) + 1)
+      const token = this.tokensContainer.addChild(new TokenView(type))
+      token.position.set(col * this.plateSize, row * this.plateSize - this.model.height * this.plateSize)
+
+      this.model.pushToken(row, col, token)
+    }
+  }
+
+  update() {
+    const matches = this.model.matrixCheck()
+
+    let lastDestroyedToken = null
+
+    for (let i = 0; i < matches.length; i++) {
+      for (let j = 0; j < matches[i].length; j++) {
+        const token = matches[i][j]
+        token.relatedMatches.push(matches[i])
+        this.destroyToken(token)
+
+        lastDestroyedToken = token
+      }
+    }
+
+    if (lastDestroyedToken !== null) {
+      lastDestroyedToken.once('destroyed', () => {
+        this.spawnNewTokens()
+
+        this.model.move()
+        this.update()
+      })
+    }
+
+    this.tokens = this.model.getAllTokens()
+
+    if (this.tokens.length < this.model.necessaryTokens) {
+      this.model.move()
+    }
+
+    this.tokens.forEach((token) => {
+      if (token.x / 100 !== token.col || token.y / 100 !== token.row) {
+        token.moveTo(token.col * this.plateSize, token.row * this.plateSize)
+      }
+    })
   }
 }

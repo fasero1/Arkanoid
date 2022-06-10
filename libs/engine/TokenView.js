@@ -1,6 +1,8 @@
 import { Tween } from '@tweenjs/tween.js'
 import Container from '../Container'
+import Particles from '../Particles'
 import Sprite from '../Sprite'
+import { boom } from '../../libs/StandartEmmiters'
 
 export default class TokenView extends Container {
   constructor(type) {
@@ -9,12 +11,16 @@ export default class TokenView extends Container {
     this.type = type
     this.view = null
 
+    // прилітає коли ми пушимо токен в модель
+    this.row = null
+    this.col = null
+
     this.tweens = []
 
     this.active = false
 
     this.toDestroy = false
-    this.matchedTokens = []
+    this.relatedMatches = []
 
     this.interactive = true
 
@@ -53,6 +59,21 @@ export default class TokenView extends Container {
 
     const scaleTween = new Tween(this.view.scale).to({ x: 1, y: 1 }, 150).start()
     this.tweens.push(scaleTween)
+  }
+
+  onDestroy() {
+    if (!this.toDestroy) return
+
+    const particles = this.addChild(new Particles('particle', boom, true))
+
+    const destroyTween = new Tween(this)
+      .to({ alpha: 0 }, 250)
+      .onComplete(() => this.destroy(false, true))
+      .start()
+  }
+
+  moveTo(x, y) {
+    return new Tween(this).to({ x: x, y: y }, 250).start()
   }
 
   stopTweens() {

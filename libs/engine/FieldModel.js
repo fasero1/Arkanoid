@@ -2,15 +2,17 @@ export default class FieldModel {
   constructor(matrix) {
     this.matrix = matrix || this.createDefaultMatrix()
 
-    this.width = matrix[0].length
-    this.height = matrix.length
+    this.width = this.matrix[0].length
+    this.height = this.matrix.length
+
+    this.necessaryTokens = this.getAllTokens().length
   }
 
   createDefaultMatrix() {
     return [
       [3, 4, 5, 1, 2],
       [3, 4, 5, 1, 2],
-      [3, 4, 5, 1, 2],
+      [4, 3, 1, 5, 4],
       [3, 4, 5, 1, 2],
       [3, 4, 5, 1, 2]
     ]
@@ -18,25 +20,51 @@ export default class FieldModel {
 
   pushToken(row, col, token) {
     this.matrix[row][col] = token
-
     token.row = row
     token.col = col
   }
 
   swapTokens(tokens) {
     const [t1, t2] = tokens
+
+    const { row: row1, col: col1 } = t1
+    const { row: row2, col: col2 } = t2
+
+    if (
+      (row1 === row2 && (col1 - 1 === col2 || col1 + 1 === col2)) ||
+      (col1 === col2 && (row1 - 1 === row2 || row1 + 1 === row2))
+    ) {
+      this.pushToken(row2, col2, t1)
+      this.pushToken(row1, col1, t2)
+
+      if (this.matrixCheck().length > 0) {
+        console.log(this.matrixCheck())
+        return true
+      }
+
+      this.pushToken(row1, col1, t1)
+      this.pushToken(row2, col2, t2)
+
+      return false
+    }
+
+    return false
   }
 
   matrixCheck() {
-    const matched = []
+    const combinations = []
 
-    for (let row = 0; row < this.matrix.length; row++) {
+    for (let row = 0; row < this.height; row++) {
       const line = this.getHorizontalLine(row)
-      const combinations = this.lineCheck(line)
-      matched.push(combinations)
+      combinations.push(this.lineCheck(line))
     }
 
-    console.log(matched)
+    for (let col = 0; col < this.width; col++) {
+      const line = this.getVerticalLine(col)
+      combinations.push(this.lineCheck(line))
+    }
+
+    return combinations.flat()
   }
 
   lineCheck(line) {
@@ -48,22 +76,54 @@ export default class FieldModel {
     let lastTokenIndex = null
 
     for (let i = 0; i < line.length; i++) {
-      if (matchColor !== line[i].type) {
+      const isLastToken = i === line.length - 1
+      const isBorder = line[i] === -1
+
+      if (line[i].type !== matchColor || isBorder || isLastToken) {
         matchColor = line[i].type
+
         lastTokenIndex = i
+        if (isLastToken) lastTokenIndex = i + 1
+        if (isBorder) lastTokenIndex = i - 1
 
         if (lastTokenIndex - firstTokenIndex >= 3) combinations.push(line.slice(firstTokenIndex, lastTokenIndex))
 
         firstTokenIndex = i
       }
-
-      if (i === line.length - 1) {
-        lastTokenIndex = i + 1
-        if (lastTokenIndex - firstTokenIndex >= 3) combinations.push(line.slice(firstTokenIndex, lastTokenIndex))
-      }
     }
 
     return combinations
+  }
+
+  move() {
+    let move = true
+
+    while (move) {
+      move = false
+
+      for (let col = 0; col < this.width; col++) {
+        const line = this.getVerticalLine(col)
+        line.sort((a, b) => {
+          if (a === null && b === null) return 0
+          if (a === null) return -1
+          if (b === null) return 1
+        })
+        this.changeVerticalLine(col, line)
+      }
+    }
+  }
+
+  changeVerticalLine(index, newLine) {
+    for (let i = 0; i < this.matrix.length; i++) {
+      const token = newLine[i]
+
+      this.matrix[i][index] = token
+      if (token !== null) token.row = i
+    }
+  }
+
+  destroyToken(row, col) {
+    this.matrix[row][col] = null
   }
 
   getVerticalLine(index) {
@@ -78,5 +138,34 @@ export default class FieldModel {
 
   getHorizontalLine(index) {
     return this.matrix[index]
+  }
+
+  getEmptyPositions() {
+    const emptyPositions = []
+
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        if (this.matrix[row][col] === null) {
+          emptyPositions.push({ row, col })
+        }
+      }
+    }
+
+    return emptyPositions
+  }
+
+  getAllTokens() {
+    const tokens = []
+
+    for (let i = 0; i < this.height; i++) {
+      for (let j = 0; j < this.width; j++) {
+        const token = this.matrix[i][j]
+        if (token !== -1 && token !== null) {
+          tokens.push(token)
+        }
+      }
+    }
+
+    return tokens
   }
 }

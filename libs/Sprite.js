@@ -1,4 +1,4 @@
-import { Container, Sprite as PixiSprite, Texture, utils } from 'pixi.js'
+import { Sprite as PixiSprite, Texture, utils } from 'pixi.js'
 
 export default class Sprite extends PixiSprite {
   constructor(url) {
