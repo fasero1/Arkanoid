@@ -1,4 +1,6 @@
 import { Application, utils } from 'pixi.js'
+import * as TWEEN from '@tweenjs/tween.js'
+
 import './main.css'
 
 import AssetsPreloader from '../libs/AssetsPreloader'
@@ -9,14 +11,27 @@ export default class Game {
   static app = null
   static currentWindow = null
   static observer = null
+  static container = document.body
+  static size = { w: 960, h: 960 }
 
   static init() {
+    Game.container = document.body
+
     const pixiConfig = {
-      antialias: true
+      width: Game.size.w,
+      height: Game.size.h,
+      antialias: true, // default: false
+      transparent: false, // default: false
+      resolution: 1, // default: 1
+      backgroundColor: 0x2c3e50
     }
 
     Game.app = new Application(pixiConfig)
-    document.body.appendChild(Game.app.view)
+    Game.container.appendChild(Game.app.view)
+
+    Game.app.view.style.position = 'absolute'
+    Game.app.view.style.left = '0'
+    Game.app.view.style.top = '0'
 
     Game.observer = new utils.EventEmitter()
 
@@ -82,16 +97,28 @@ export default class Game {
   static onResize() {
     LayoutHelper.onResize()
 
-    Game.app.stage.pivot.set(-LayoutHelper.gameWidth / 2, -LayoutHelper.gameHeight / 2)
+    document.body.style.width = w + 'px'
+    document.body.style.height = h + 'px'
 
     Game.app.renderer.resize(LayoutHelper.gameWidth, LayoutHelper.gameHeight)
+    // Game.app.stage.position.set(LayoutHelper.gameWidth/2,LayoutHelper.height/2)
 
+    // let ratio = Math.max(LayoutHelper.gameWidth / Game.size.w, LayoutHelper.gameHeight / Game.size.h)
+
+    // Game.currentWindow.position.set(LayoutHelper.gameWidth / 2, LayoutHelper.gameHeight / 2)
+    // Game.currentWindow.scale.set(ratio)
+    // Game.currentWindow.scale.set(ratio)
+    Game.currentWindow.position.set(Game.app.renderer.width / 2, Game.app.renderer.height / 2)
     Game.currentWindow.onResize()
 
     Game.emit('resize')
   }
 
   static onTick(delta) {
+    const lastTime = Game.app.ticker.lastTime
+
+    TWEEN.update(lastTime)
+
     Game.currentWindow.onTick(delta)
   }
 }

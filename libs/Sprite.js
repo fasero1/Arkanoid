@@ -1,12 +1,10 @@
 import { Container, Sprite as PixiSprite, Texture, utils } from 'pixi.js'
 
-export default class Sprite extends Container {
+export default class Sprite extends PixiSprite {
   constructor(url) {
-    super()
+    super(Texture.from(utils.BaseTextureCache[url]))
 
-    this.sprite = this.addChild(new PixiSprite(Texture.from(utils.BaseTextureCache[url])))
-
-    this.sprite.anchor.set(0.5)
+    this.anchor.set(0.5)
   }
 
   on(event, fn, context) {

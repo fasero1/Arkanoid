@@ -1,3 +1,4 @@
+import { Tween } from '@tweenjs/tween.js'
 import Container from '../Container'
 import Sprite from '../Sprite'
 import FieldModel from './FieldModel'
@@ -11,17 +12,25 @@ export default class FieldView extends Container {
 
     this.plateSize = props?.size || 100
 
-    this.startCordX = -((this.plateSize * this.model.matrix[0].length) / 2 - this.plateSize / 2)
-    this.startCordY = -((this.plateSize * this.model.matrix.length) / 2 - this.plateSize / 2)
+    this.startCordX = -((this.plateSize * this.model.width) / 2 - this.plateSize / 2)
+    this.startCordY = -((this.plateSize * this.model.height) / 2 - this.plateSize / 2)
 
     this.bordersContainer = null
     this.tokensContainer = null
 
+    this.selectedTokens = []
+
     this.tokens = []
 
+    this.init()
+  }
+
+  init() {
     this.createBackground()
     this.createTokens()
     this.subscribe()
+
+    this.update()
   }
 
   createBackground() {
@@ -41,47 +50,26 @@ export default class FieldView extends Container {
         plate.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
 
         const borders = this.bordersCheck(row, col)
+        this.drawBorders(borders, row, col)
+      }
+    }
+  }
 
-        if (borders.top) {
-          const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
-          sprite.width = 100
-          sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
-          sprite.rotation = Math.PI
-          sprite.position.y -= this.plateSize / 2 + sprite.height / 2
+  drawBorders(borders, row, col) {
+    for (const side in borders) {
+      if (borders[side]) {
+        const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
+        sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
+
+        const correction = this.plateSize / 2 + sprite.height / 2
+
+        if (side === 'top' || side === 'bottom') {
+          side === 'top' ? (sprite.y -= correction) : (sprite.y += correction)
         }
-
-        if (borders.bottom) {
-          const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
-          sprite.width = 100
-          sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
-          sprite.rotation = 0
-          sprite.position.y += this.plateSize / 2 + sprite.height / 2
-        }
-
-        if (borders.left) {
-          const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
-          sprite.width = 100
-          sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
+        if (side === 'left' || side === 'right') {
           sprite.rotation = Math.PI * 0.5
-          sprite.position.x -= this.plateSize / 2 + sprite.height / 2
+          side === 'left' ? (sprite.x -= correction) : (sprite.x += correction)
         }
-
-        if (borders.right) {
-          const sprite = this.bordersContainer.addChild(new Sprite('borders/border'))
-          sprite.width = 100
-          sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
-          sprite.rotation = Math.PI * -0.5
-          sprite.position.x += this.plateSize / 2 + sprite.height / 2
-        }
-
-        // if (borders.topLeftAngle) {
-        //   const sprite = this.bordersContainer.addChild(new MySprite('borders/border-angle'))
-        //   ancho
-        //   // sprite.width = sprite.height = 100
-        //   sprite.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
-        //   // sprite.rotation = Math.PI * -0.5
-        //   sprite.position.x += sprite.width / 2 - this.plateSize / 2 - 50
-        // }
       }
     }
   }
@@ -94,10 +82,7 @@ export default class FieldView extends Container {
     for (let row = 0; row < matrix.length; row++) {
       for (let col = 0; col < matrix[row].length; col++) {
         const token = this.tokensContainer.addChild(new TokenView(matrix[row][col]))
-        token.row = row
-        token.col = col
-
-        token.width = token.height = this.plateSize - 10
+        this.model.pushToken(row, col, token)
 
         token.position.set(this.startCordX + col * this.plateSize, this.startCordY + row * this.plateSize)
 
@@ -112,11 +97,7 @@ export default class FieldView extends Container {
       top: false,
       bottom: false,
       left: false,
-      right: false,
-      topLeftAngle: false,
-      topRightAngle: false,
-      bottomLeftAngle: false,
-      bottomRightAngle: false
+      right: false
     }
 
     if (!matrix[row - 1] || matrix[row - 1][col] === -1) borders.top = true
@@ -125,38 +106,39 @@ export default class FieldView extends Container {
     if (!matrix[row][col - 1] || matrix[row][col - 1] === -1) borders.left = true
     if (!matrix[row][col + 1] || matrix[row][col + 1] === -1) borders.right = true
 
-    if (borders.top && borders.left) {
-      borders.top = false
-      borders.left = false
-      borders.topLeftAngle = true
-    }
-
-    if (borders.top && borders.right) {
-      borders.top = false
-      borders.right = false
-      borders.topRightAngle = true
-    }
-
-    if (borders.bottom && borders.left) {
-      borders.bottom = false
-      borders.left = false
-      borders.bottomLeftAngle = true
-    }
-
-    if (borders.bottom && borders.right) {
-      borders.bottom = false
-      borders.right = false
-      borders.bottomRightAngle = true
-    }
-
     return borders
   }
 
   subscribe() {
-    this.on('pointerdown', this.onPointerDown, this)
+    this.tokensContainer.on('pointerdown', this.onPointerDown, this)
   }
 
   onPointerDown(e) {
-    console.log(e)
+    const token = e.target
+    token.onPointerDown()
+
+    if (token.active) {
+      this.selectedTokens.push(token)
+    } else {
+      this.selectedTokens = this.selectedTokens.filter((item) => item.col !== token.col && item.row !== token.row)
+    }
+
+    if (this.selectedTokens.length === 2) {
+      this.onSwap()
+    }
+  }
+
+  onSwap() {
+    this.selectedTokens.forEach((token) => token.onUnselect())
+
+    this.model.swapTokens(this.selectedTokens)
+
+    this.selectedTokens = []
+  }
+
+  update() {
+    this.model.matrixCheck()
+
+    // console.log(this.model.matrix)
   }
 }
