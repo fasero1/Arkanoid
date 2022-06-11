@@ -131,12 +131,17 @@ export default class FieldView extends Container {
 
   makeSwap() {
     this.selectedTokens.forEach((token) => token.onUnselect())
+    if (this.model.isTokensNear(this.selectedTokens[0], this.selectedTokens[1])) {
+      this.selectedTokens[0].moveTo(this.selectedTokens[1].x, this.selectedTokens[1].y)
+      this.selectedTokens[1].moveTo(this.selectedTokens[0].x, this.selectedTokens[0].y).onComplete(() => {
+        this.model.swapTokens(this.selectedTokens)
+        this.update()
 
-    if (this.model.swapTokens(this.selectedTokens)) {
-      this.update()
+        this.selectedTokens = []
+      })
+    } else {
+      this.selectedTokens = []
     }
-
-    this.selectedTokens = []
   }
 
   destroyToken(token) {
@@ -151,6 +156,8 @@ export default class FieldView extends Container {
   }
 
   spawnNewTokens() {
+    const newTokens = []
+
     const emptyPos = this.model.getEmptyPositions()
 
     for (let i = emptyPos.length - 1; i >= 0; i--) {
@@ -160,7 +167,11 @@ export default class FieldView extends Container {
       token.position.set(col * this.plateSize, row * this.plateSize - this.model.height * this.plateSize)
 
       this.model.pushToken(row, col, token)
+
+      newTokens.push(token)
     }
+
+    return newTokens
   }
 
   update() {

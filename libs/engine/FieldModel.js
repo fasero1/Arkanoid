@@ -34,11 +34,10 @@ export default class FieldModel {
       (row1 === row2 && (col1 - 1 === col2 || col1 + 1 === col2)) ||
       (col1 === col2 && (row1 - 1 === row2 || row1 + 1 === row2))
     ) {
-      this.pushToken(row2, col2, t1)
       this.pushToken(row1, col1, t2)
+      this.pushToken(row2, col2, t1)
 
       if (this.matrixCheck().length > 0) {
-        console.log(this.matrixCheck())
         return true
       }
 
@@ -46,6 +45,20 @@ export default class FieldModel {
       this.pushToken(row2, col2, t2)
 
       return false
+    }
+
+    return false
+  }
+
+  isTokensNear(t1, t2) {
+    const { row: row1, col: col1 } = t1
+    const { row: row2, col: col2 } = t2
+
+    if (
+      (row1 === row2 && (col1 - 1 === col2 || col1 + 1 === col2)) ||
+      (col1 === col2 && (row1 - 1 === row2 || row1 + 1 === row2))
+    ) {
+      return true
     }
 
     return false
@@ -72,8 +85,8 @@ export default class FieldModel {
 
     let matchColor = null
 
-    let firstTokenIndex = null
-    let lastTokenIndex = null
+    let firstTokenIndex = 0
+    let lastTokenIndex = 0
 
     for (let i = 0; i < line.length; i++) {
       const isLastToken = i === line.length - 1
@@ -83,10 +96,12 @@ export default class FieldModel {
         matchColor = line[i].type
 
         lastTokenIndex = i
-        if (isLastToken) lastTokenIndex = i + 1
-        if (isBorder) lastTokenIndex = i - 1
+        if (isLastToken && line[i].type === line[i - 1].type) lastTokenIndex = i + 1
+        // if (isBorder) lastTokenIndex = i - 1
 
-        if (lastTokenIndex - firstTokenIndex >= 3) combinations.push(line.slice(firstTokenIndex, lastTokenIndex))
+        if (lastTokenIndex - firstTokenIndex >= 3) {
+          combinations.push(line.slice(firstTokenIndex, lastTokenIndex))
+        }
 
         firstTokenIndex = i
       }

@@ -67,7 +67,7 @@ export default class TokenView extends Container {
     const particles = this.addChild(new Particles('particle', boom, true))
 
     const destroyTween = new Tween(this)
-      .to({ alpha: 0 }, 250)
+      .to({ alpha: 0 }, 350)
       .onComplete(() => this.destroy(false, true))
       .start()
   }
