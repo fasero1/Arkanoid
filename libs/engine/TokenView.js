@@ -1,4 +1,4 @@
-import { Tween } from '@tweenjs/tween.js'
+import Tween from '../Tween'
 import Container from '../Container'
 import Particles from '../Particles'
 import Sprite from '../Sprite'
@@ -74,8 +74,6 @@ export default class TokenView extends Container {
   }
 
   moveTo(x, y) {
-    console.log('moveTo')
-
     return new Tween(this).to({ x: x, y: y }, 250).start()
   }
 

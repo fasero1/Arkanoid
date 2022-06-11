@@ -1,4 +1,3 @@
-import { Tween } from '@tweenjs/tween.js'
 import Container from '../Container'
 import Sprite from '../Sprite'
 import FieldModel from './FieldModel'
@@ -19,8 +18,10 @@ export default class FieldView extends Container {
     this.selectedTokens = []
 
     this.tokens = []
+    this.hints = [] /// масив з підказками для ходів \\ якщо 0 - шафл \\ прилітає по два токена
 
     this._lock = false
+    this.iteractionData = null
 
     this.init()
   }
@@ -114,10 +115,15 @@ export default class FieldView extends Container {
 
   subscribe() {
     this.tokensContainer.on('pointerdown', this.onPointerDown, this)
+    // this.tokensContainer.on('pointermove', this.onPointerMove, this)
+    // this.tokensContainer.on('pointerup', this.onPointerUp, this)
+    // this.tokensContainer.on('pointerupoutside', this.onPointerUp, this)
   }
 
   onPointerDown(e) {
     if (this._lock) return
+
+    this.iteractionData = e.data
 
     const token = e.target
     token.onPointerDown()
@@ -133,17 +139,34 @@ export default class FieldView extends Container {
     }
   }
 
+  // onPointerMove(e) {
+  //   if (this._lock) return
+  //   if (this.iteractionData) {
+  //     const newPosition = e.data.getLocalPosition(this.parent)
+  //     console.log(newPosition, this.iteractionData.getLocalPosition(this.parent))
+  //   }
+  // }
+
+  // onPointerUp(e) {
+  //   console.log('up')
+  //   this.iteractionData = null
+  // }
+
   makeSwap() {
     const [t1, t2] = this.selectedTokens
 
     this.selectedTokens.forEach((token) => token.onUnselect())
     if (this.model.isTokensNear(t1, t2)) {
+      this.lock()
+
       t1.moveTo(t2.x, t2.y)
-      t2.moveTo(t1.x, t1.y).onComplete(() => {
+      t2.moveTo(t1.x, t1.y).once('complete', () => {
         this.model.swapTokens(this.selectedTokens)
         this.update()
 
         this.selectedTokens = []
+
+        this.unLock()
       })
     } else {
       this.selectedTokens = []
@@ -189,7 +212,42 @@ export default class FieldView extends Container {
   }
 
   update() {
-    if (this._lock) return
+    this.lock()
+
+    this.tokens = this.model.getAllTokens()
+
+    let tween = null
+    this.tokens.forEach((token) => {
+      if (token.x / 100 !== token.col || token.y / 100 !== token.row) {
+        tween = token.moveTo(token.col * this.plateSize, token.row * this.plateSize)
+      }
+    })
+
+    tween?.once('complete', () => {
+      this.postUpdate()
+    })
+
+    if (this.tokens.length < this.model.necessaryTokens) {
+      this.postUpdate()
+    } else if (!tween) {
+      this.postUpdate()
+    }
+  }
+
+  postUpdate() {
+    if (this.checkToDestoy()) return
+
+    this.hints = this.model.getHints()
+    console.log('avaible-moves', this.hints.length)
+    if (this.hints.length === 0) {
+      this.model.shuffle()
+      this.update()
+    }
+
+    this.unLock()
+  }
+
+  checkToDestoy() {
     const matches = this.model.matrixCheck()
 
     let lastDestroyedToken = null
@@ -206,23 +264,14 @@ export default class FieldView extends Container {
 
     if (lastDestroyedToken !== null) {
       lastDestroyedToken.once('destroyed', () => {
-        this.spawnNewTokens()
-
         this.model.move()
+        this.spawnNewTokens()
         this.update()
       })
+
+      return true
     }
 
-    this.tokens = this.model.getAllTokens()
-
-    if (this.tokens.length < this.model.necessaryTokens) {
-      this.model.move()
-    }
-
-    this.tokens.forEach((token) => {
-      if (token.x / 100 !== token.col || token.y / 100 !== token.row) {
-        token.moveTo(token.col * this.plateSize, token.row * this.plateSize)
-      }
-    })
+    return false
   }
 }

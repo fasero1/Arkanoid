@@ -5,8 +5,9 @@ import './main.css'
 
 import AssetsPreloader from '../libs/AssetsPreloader'
 import LayoutHelper from '../libs/LayoutHelper'
-import MainWindow from './view/MainWindow'
 import Particles from '../libs/Particles'
+
+import MainWindow from './view/MainWindow'
 
 export default class Game {
   static app = null

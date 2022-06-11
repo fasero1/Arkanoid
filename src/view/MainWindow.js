@@ -16,11 +16,11 @@ export default class MainWindow extends GameWindow {
 
   createChildren() {
     const fieldMatrix = [
-      [3, 4, 5, 1, 2],
-      [3, 4, 2, 3, 2],
-      [4, 3, 1, 5, 4],
-      [3, 4, 5, 1, 2],
-      [3, 4, 5, 1, 2]
+      [3, 4, 5, 1, 6],
+      [5, 1, 2, 3, 6],
+      [4, 3, 6, 6, 4],
+      [1, 2, 5, 1, 2],
+      [3, 4, 6, 1, 2]
     ]
 
     this.field = this.addChild(new FieldView(fieldMatrix))
