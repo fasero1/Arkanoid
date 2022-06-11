@@ -21,7 +21,7 @@ export default class FieldView extends Container {
     this.hints = [] /// масив з підказками для ходів \\ якщо 0 - шафл \\ прилітає по два токена
 
     this._lock = false
-    this.iteractionData = null
+    this.pointer = { id: null }
 
     this.init()
   }
@@ -115,17 +115,50 @@ export default class FieldView extends Container {
 
   subscribe() {
     this.tokensContainer.on('pointerdown', this.onPointerDown, this)
-    // this.tokensContainer.on('pointermove', this.onPointerMove, this)
-    // this.tokensContainer.on('pointerup', this.onPointerUp, this)
-    // this.tokensContainer.on('pointerupoutside', this.onPointerUp, this)
+    this.tokensContainer.on('pointermove', this.onPointerMove, this)
+    this.tokensContainer.on('pointerup', this.onPointerUp, this)
+    this.tokensContainer.on('pointerupoutside', this.onPointerUp, this)
   }
 
   onPointerDown(e) {
     if (this._lock) return
+    if (this.pointer.id !== null) return
 
-    this.iteractionData = e.data
+    this.pointer.id = e.data.pointerId
 
     const token = e.target
+    this.selectToken(token)
+
+    console.log('down')
+  }
+
+  onPointerMove(e) {
+    if (this._lock) return
+    if (this.pointer.id !== e.data.pointerId) return
+
+    console.log('move')
+
+    const local = e.data.getLocalPosition(this.tokensContainer)
+    const col = Math.floor((local.x + this.plateSize / 2) / this.plateSize)
+    const row = Math.floor((local.y + this.plateSize / 2) / this.plateSize)
+    console.log(col, row)
+
+    const token = this.model.getToken(row, col)
+    if (token && this.selectedTokens.length === 1) {
+      if (this.model.isTokensNear(this.selectedTokens[0], token)) {
+        this.selectToken(token)
+      }
+    }
+  }
+
+  onPointerUp(e) {
+    if (this.pointer.id !== e.data.pointerId) return
+    this.pointer.id = null
+
+    console.log('up')
+  }
+
+  selectToken(token) {
     token.onPointerDown()
 
     if (token.active) {
@@ -138,19 +171,6 @@ export default class FieldView extends Container {
       this.makeSwap()
     }
   }
-
-  // onPointerMove(e) {
-  //   if (this._lock) return
-  //   if (this.iteractionData) {
-  //     const newPosition = e.data.getLocalPosition(this.parent)
-  //     console.log(newPosition, this.iteractionData.getLocalPosition(this.parent))
-  //   }
-  // }
-
-  // onPointerUp(e) {
-  //   console.log('up')
-  //   this.iteractionData = null
-  // }
 
   makeSwap() {
     const [t1, t2] = this.selectedTokens
@@ -165,8 +185,6 @@ export default class FieldView extends Container {
         this.update()
 
         this.selectedTokens = []
-
-        this.unLock()
       })
     } else {
       this.selectedTokens = []

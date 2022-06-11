@@ -241,6 +241,26 @@ export default class FieldModel {
     return hints
   }
 
+  shuffle() {
+    console.log('SHUFFLE')
+
+    const tokens = this.getAllTokens()
+    for (let i = tokens.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = tokens[i]
+      tokens[i] = tokens[j]
+      tokens[j] = temp
+    }
+
+    let counter = 0
+    for (let row = 0; row < this.height; row++) {
+      for (let col = 0; col < this.width; col++) {
+        this.pushToken(row, col, tokens[counter])
+        counter++
+      }
+    }
+  }
+
   getVerticalLine(index) {
     const line = []
 
@@ -269,24 +289,9 @@ export default class FieldModel {
     return emptyPositions
   }
 
-  shuffle() {
-    console.log('SHUFFLE')
-
-    const tokens = this.getAllTokens()
-    for (let i = tokens.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      const temp = tokens[i]
-      tokens[i] = tokens[j]
-      tokens[j] = temp
-    }
-
-    let counter = 0
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        this.pushToken(row, col, tokens[counter])
-        counter++
-      }
-    }
+  getToken(row, col) {
+    const token = this.matrix[row][col]
+    if (token?.type !== -1) return token
   }
 
   getAllTokens() {
