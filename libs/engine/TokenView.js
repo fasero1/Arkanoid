@@ -69,10 +69,13 @@ export default class TokenView extends Container {
     const destroyTween = new Tween(this)
       .to({ alpha: 0 }, 350)
       .onComplete(() => this.destroy(false, true))
+      .delay(150)
       .start()
   }
 
   moveTo(x, y) {
+    console.log('moveTo')
+
     return new Tween(this).to({ x: x, y: y }, 250).start()
   }
 

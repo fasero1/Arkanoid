@@ -20,6 +20,8 @@ export default class FieldView extends Container {
 
     this.tokens = []
 
+    this._lock = false
+
     this.init()
   }
 
@@ -115,6 +117,8 @@ export default class FieldView extends Container {
   }
 
   onPointerDown(e) {
+    if (this._lock) return
+
     const token = e.target
     token.onPointerDown()
 
@@ -130,10 +134,12 @@ export default class FieldView extends Container {
   }
 
   makeSwap() {
+    const [t1, t2] = this.selectedTokens
+
     this.selectedTokens.forEach((token) => token.onUnselect())
-    if (this.model.isTokensNear(this.selectedTokens[0], this.selectedTokens[1])) {
-      this.selectedTokens[0].moveTo(this.selectedTokens[1].x, this.selectedTokens[1].y)
-      this.selectedTokens[1].moveTo(this.selectedTokens[0].x, this.selectedTokens[0].y).onComplete(() => {
+    if (this.model.isTokensNear(t1, t2)) {
+      t1.moveTo(t2.x, t2.y)
+      t2.moveTo(t1.x, t1.y).onComplete(() => {
         this.model.swapTokens(this.selectedTokens)
         this.update()
 
@@ -174,7 +180,16 @@ export default class FieldView extends Container {
     return newTokens
   }
 
+  lock() {
+    this._lock = true
+  }
+
+  unLock() {
+    this._lock = false
+  }
+
   update() {
+    if (this._lock) return
     const matches = this.model.matrixCheck()
 
     let lastDestroyedToken = null
