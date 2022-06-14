@@ -1,5 +1,5 @@
-import Container from '../Container'
-import Sprite from '../Sprite'
+import Container from '../../../libs/Container'
+import Sprite from '../../../libs/Sprite'
 import FieldModel from './FieldModel'
 import TokenView from './TokenView'
 
@@ -128,20 +128,15 @@ export default class FieldView extends Container {
 
     const token = e.target
     this.selectToken(token)
-
-    console.log('down')
   }
 
   onPointerMove(e) {
     if (this._lock) return
     if (this.pointer.id !== e.data.pointerId) return
 
-    console.log('move')
-
     const local = e.data.getLocalPosition(this.tokensContainer)
     const col = Math.floor((local.x + this.plateSize / 2) / this.plateSize)
     const row = Math.floor((local.y + this.plateSize / 2) / this.plateSize)
-    console.log(col, row)
 
     const token = this.model.getToken(row, col)
     if (token && this.selectedTokens.length === 1) {
@@ -154,8 +149,6 @@ export default class FieldView extends Container {
   onPointerUp(e) {
     if (this.pointer.id !== e.data.pointerId) return
     this.pointer.id = null
-
-    console.log('up')
   }
 
   selectToken(token) {
@@ -256,7 +249,7 @@ export default class FieldView extends Container {
     if (this.checkToDestoy()) return
 
     this.hints = this.model.getHints()
-    console.log('avaible-moves', this.hints.length)
+    // console.log('avaible-moves', this.hints.length)
     if (this.hints.length === 0) {
       this.model.shuffle()
       this.update()

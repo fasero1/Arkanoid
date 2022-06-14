@@ -33,7 +33,6 @@ module.exports = {
     'key-spacing': ['warn'],
     'max-depth': ['error', { max: 4 }],
     'max-lines': ['error', { max: 500 }],
-    'multiline-ternary': ['error', 'never'],
     'no-nested-ternary': ['error'],
     'no-whitespace-before-property': ['warn'],
     'arrow-spacing': ['warn'],

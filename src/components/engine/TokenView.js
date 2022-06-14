@@ -1,8 +1,8 @@
-import Tween from '../Tween'
-import Container from '../Container'
-import Particles from '../Particles'
-import Sprite from '../Sprite'
-import { boom } from '../../libs/StandartEmmiters'
+import Tween from '../../../libs/Tween'
+import Container from '../../../libs/Container'
+import Particles from '../../../libs/Particles'
+import Sprite from '../../../libs/Sprite'
+import { boom } from '../../../libs/StandartEmmiters'
 
 export default class TokenView extends Container {
   constructor(type) {

@@ -8,6 +8,8 @@ import LayoutHelper from '../libs/LayoutHelper'
 import Particles from '../libs/Particles'
 
 import MainWindow from './view/MainWindow'
+import GameWindow from '../libs/GameWindow'
+import Firebase from '../libs/Firebase'
 
 export default class Game {
   static app = null
@@ -16,6 +18,8 @@ export default class Game {
   static container = document.body
   static size = { w: 960, h: 960 }
   static liveTime = 0
+  static registrationForm = null
+  static playerId = null
 
   static init() {
     Game.container = document.body
@@ -32,9 +36,9 @@ export default class Game {
     Game.app = new Application(pixiConfig)
     Game.container.appendChild(Game.app.view)
 
-    Game.app.view.style.position = 'absolute'
-    Game.app.view.style.left = '0'
-    Game.app.view.style.top = '0'
+    // Game.app.view.style.position = 'absolute'
+    // Game.app.view.style.left = '0'
+    // Game.app.view.style.top = '0'
 
     Game.observer = new utils.EventEmitter()
 
@@ -126,5 +130,41 @@ export default class Game {
     Particles.update(delta)
 
     Game.currentWindow.onTick(delta)
+  }
+
+  static exit() {
+    console.log('EXIT')
+
+    window.close()
+  }
+
+  static getRegistationForm() {
+    const form = document.querySelector('form')
+    form.style.display = 'block'
+
+    const regFunc = (e) => {
+      e.preventDefault()
+
+      const inputs = document.querySelectorAll('input')
+      if (inputs[0].value.includes('@') && inputs[1].value === inputs[2].value) {
+        registrationBtn.removeEventListener('click', regFunc)
+
+        Firebase.registration(inputs[0].value, inputs[1].value)
+      }
+
+      // Game.emit('registration-window-closed')
+      // form.style.display = 'none'
+    }
+
+    const closeBtn = document.querySelector('.cancelbtn')
+    closeBtn.addEventListener('click', () => {
+      form.style.display = 'none'
+      registrationBtn.removeEventListener('click', regFunc)
+
+      Game.emit('registration-window-closed')
+    })
+
+    const registrationBtn = document.querySelector('.signupbtn')
+    registrationBtn.addEventListener('click', regFunc)
   }
 }

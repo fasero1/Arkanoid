@@ -1,4 +1,4 @@
-import { Container } from 'pixi.js'
+import Container from './Container'
 
 export default class GameWindow extends Container {
   constructor() {

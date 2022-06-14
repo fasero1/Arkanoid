@@ -13,8 +13,8 @@ export default class LayoutHelper {
     LayoutHelper.isPortrait = LayoutHelper.width < LayoutHelper.height
 
     LayoutHelper.aspectRatio = Math.max(
-      LayoutHelper.gameWidth / LayoutHelper.gameHeight,
-      LayoutHelper.gameHeight / LayoutHelper.gameWidth
+      LayoutHelper.width / LayoutHelper.height,
+      LayoutHelper.height / LayoutHelper.width
     )
 
     let gw = null
