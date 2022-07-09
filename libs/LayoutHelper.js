@@ -42,5 +42,9 @@ export default class LayoutHelper {
 
     LayoutHelper.gameWidth = gw
     LayoutHelper.gameHeight = gh
+    LayoutHelper.left = -gw / 2
+    LayoutHelper.right = gw / 2
+    LayoutHelper.top = -gh / 2
+    LayoutHelper.bottom = gh / 2
   }
 }

@@ -2,7 +2,7 @@ import { Sprite as PixiSprite, Texture, utils } from 'pixi.js'
 
 export default class Sprite extends PixiSprite {
   constructor(url) {
-    super(Texture.from(utils.BaseTextureCache[url]))
+    super(url ? Texture.from(utils.BaseTextureCache[url]) : '')
 
     this.anchor.set(0.5)
   }

@@ -1,4 +1,4 @@
-import { Application, utils } from 'pixi.js'
+import { Application, TextStyle, utils } from 'pixi.js'
 import * as TWEEN from '@tweenjs/tween.js'
 
 import './main.css'
@@ -6,10 +6,9 @@ import './main.css'
 import AssetsPreloader from '../libs/AssetsPreloader'
 import LayoutHelper from '../libs/LayoutHelper'
 import Particles from '../libs/Particles'
+import Text from '../libs/Text'
 
 import MainWindow from './view/MainWindow'
-import GameWindow from '../libs/GameWindow'
-import Firebase from '../libs/Firebase'
 
 export default class Game {
   static app = null
@@ -20,6 +19,10 @@ export default class Game {
   static liveTime = 0
   static registrationForm = null
   static playerId = null
+  static loader = null
+
+  static fps = 0
+  static fpsTimer = 0
 
   static init() {
     Game.container = document.body
@@ -28,7 +31,7 @@ export default class Game {
       width: Game.size.w,
       height: Game.size.h,
       antialias: true, // default: false
-      // transparent: false, // default: false
+      backgroundAlpha: true, // default: false
       resolution: 1, // default: 1
       backgroundColor: 0x2c3e50
     }
@@ -36,9 +39,9 @@ export default class Game {
     Game.app = new Application(pixiConfig)
     Game.container.appendChild(Game.app.view)
 
-    // Game.app.view.style.position = 'absolute'
-    // Game.app.view.style.left = '0'
-    // Game.app.view.style.top = '0'
+    Game.app.view.style.position = 'absolute'
+    Game.app.view.style.left = '0'
+    Game.app.view.style.top = '0'
 
     Game.observer = new utils.EventEmitter()
 
@@ -121,13 +124,20 @@ export default class Game {
 
   static onTick() {
     const lastTime = Game.app.ticker.lastTime
-
-    let delta = Game.app.ticker.elapsedMS
+    const delta = Game.app.ticker.elapsedMS
 
     Game.liveTime += delta
 
     TWEEN.update(lastTime)
     Particles.update(delta)
+
+    Game.fpsTimer += delta
+    Game.fps += 1
+    if (Game.fpsTimer >= 1000) {
+      Game.currentWindow.text.setText(Game.fps)
+      Game.fpsTimer = 0
+      Game.fps = 0
+    }
 
     Game.currentWindow.onTick(delta)
   }
@@ -136,35 +146,5 @@ export default class Game {
     console.log('EXIT')
 
     window.close()
-  }
-
-  static getRegistationForm() {
-    const form = document.querySelector('form')
-    form.style.display = 'block'
-
-    const regFunc = (e) => {
-      e.preventDefault()
-
-      const inputs = document.querySelectorAll('input')
-      if (inputs[0].value.includes('@') && inputs[1].value === inputs[2].value) {
-        registrationBtn.removeEventListener('click', regFunc)
-
-        Firebase.registration(inputs[0].value, inputs[1].value)
-      }
-
-      // Game.emit('registration-window-closed')
-      // form.style.display = 'none'
-    }
-
-    const closeBtn = document.querySelector('.cancelbtn')
-    closeBtn.addEventListener('click', () => {
-      form.style.display = 'none'
-      registrationBtn.removeEventListener('click', regFunc)
-
-      Game.emit('registration-window-closed')
-    })
-
-    const registrationBtn = document.querySelector('.signupbtn')
-    registrationBtn.addEventListener('click', regFunc)
   }
 }

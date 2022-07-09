@@ -1,0 +1,6 @@
+{
+	"appId": "com.example.app",
+	"appName": "3-match-puzzle",
+	"webDir": "dist",
+	"bundledWebRuntime": false
+}
