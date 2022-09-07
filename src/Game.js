@@ -20,6 +20,7 @@ export default class Game {
   static registrationForm = null
   static playerId = null
   static loader = null
+  static fpsCounter = null
 
   static fps = 0
   static fpsTimer = 0
@@ -48,6 +49,7 @@ export default class Game {
     Game.loader = new AssetsPreloader(Game.getAssets())
     Game.loader.onComplete = Game.createMainWindow
     Game.loader.preload()
+    Game.createFrameCounter()
   }
 
   static getAssets() {
@@ -79,6 +81,14 @@ export default class Game {
 
     Game.subscribe()
     Game.onResize()
+  }
+
+  static createFrameCounter() {
+    const counter = Game.app.stage.addChild(new Text('0', { fontSize: 65 }))
+
+    counter.position.set(100)
+
+    Game.fpsCounter = counter
   }
 
   static subscribe() {
@@ -134,7 +144,7 @@ export default class Game {
     Game.fpsTimer += delta
     Game.fps += 1
     if (Game.fpsTimer >= 1000) {
-      Game.currentWindow.text.setText(Game.fps)
+      Game.fpsCounter.setText(Game.fps)
       Game.fpsTimer = 0
       Game.fps = 0
     }
@@ -143,7 +153,7 @@ export default class Game {
   }
 
   static exit() {
-    console.log('EXIT')
+    console.warn('EXIT')
 
     window.close()
   }

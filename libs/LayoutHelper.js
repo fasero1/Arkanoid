@@ -2,15 +2,10 @@ export default class LayoutHelper {
   static gameWidth = null
   static gameHeight = null
   static aspectRatio = null
-  static isLandscape = null
-  static isPortrait = null
 
   static onResize({ w, h }) {
     LayoutHelper.width = window.innerWidth
     LayoutHelper.height = window.innerHeight
-
-    LayoutHelper.isLandscape = LayoutHelper.width > LayoutHelper.height
-    LayoutHelper.isPortrait = LayoutHelper.width < LayoutHelper.height
 
     LayoutHelper.aspectRatio = Math.max(
       LayoutHelper.width / LayoutHelper.height,
@@ -20,7 +15,7 @@ export default class LayoutHelper {
     let gw = null
     let gh = null
 
-    if (LayoutHelper.isLandscape) {
+    if (LayoutHelper.width > LayoutHelper.height) {
       gh = w
       gw = Math.floor(gh * (LayoutHelper.width / LayoutHelper.height))
 
@@ -30,7 +25,7 @@ export default class LayoutHelper {
       }
     }
 
-    if (LayoutHelper.isPortrait) {
+    if (LayoutHelper.width < LayoutHelper.height) {
       gh = h
       gw = Math.floor(gh * (LayoutHelper.width / LayoutHelper.height))
 
