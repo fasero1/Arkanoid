@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">3-match-puzzle</string>
-    <string name="title_activity_main">3-match-puzzle</string>
-    <string name="package_name">com.example.app</string>
-    <string name="custom_url_scheme">com.example.app</string>
-    <string name="admob_app_id">ca-app-pub-4811149063907388~7251645697</string>
-
-</resources>
